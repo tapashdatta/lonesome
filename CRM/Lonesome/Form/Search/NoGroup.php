@@ -8,7 +8,7 @@ class CRM_Lonesome_Form_Search_NoGroup extends CRM_Contact_Form_Search_Custom_Ba
     parent::__construct($formValues);
 
   }
-    
+
   /**
    * Prepare a set of search fields
    *
@@ -16,12 +16,12 @@ class CRM_Lonesome_Form_Search_NoGroup extends CRM_Contact_Form_Search_Custom_Ba
    * @return void
    */
   function buildForm(&$form) {
-      
+
     CRM_Utils_System::setTitle(ts('Contacts without groups and/or tags'));
-    
+
     $form->addElement('checkbox', 'without_groups', ts('Contacts without groups'));
     $form->addElement('checkbox', 'without_tags', ts('Contacts without tags'));
-    
+
     $form->setDefaults(array(
       'without_groups' => true,
       'without_tags' => true
@@ -30,7 +30,7 @@ class CRM_Lonesome_Form_Search_NoGroup extends CRM_Contact_Form_Search_Custom_Ba
       'without_groups',
       'without_tags',
     ));
-    
+
     $form->addFormRule(array('CRM_Lonesome_Form_Search_NoGroup', 'formRule'), $form);
   }
 
@@ -75,7 +75,7 @@ class CRM_Lonesome_Form_Search_NoGroup extends CRM_Contact_Form_Search_Custom_Ba
   function all($offset = 0, $rowcount = 0, $sort = NULL, $includeContactIDs = FALSE, $justIDs = FALSE) {
     if (empty($sort)) {
       $sort = ' created_date DESC ';
-    }    
+    }
     return $this->sql($this->select(), $offset, $rowcount, $sort, $includeContactIDs, NULL);
   }
 
@@ -94,7 +94,7 @@ class CRM_Lonesome_Form_Search_NoGroup extends CRM_Contact_Form_Search_Custom_Ba
       modified_date
       ";
   }
-  
+
   /**
    * Construct a SQL FROM clause
    *
@@ -111,7 +111,7 @@ class CRM_Lonesome_Form_Search_NoGroup extends CRM_Contact_Form_Search_Custom_Ba
    * @return string, sql fragment with conditional expressions
    */
   function where($includeContactIDs = FALSE) {
-      
+
     $withoutGroups = CRM_Utils_Array::value('without_groups',
       $this->_formValues
     );
@@ -128,7 +128,7 @@ class CRM_Lonesome_Form_Search_NoGroup extends CRM_Contact_Form_Search_Custom_Ba
             WHERE c3.contact_id = contact_a.id)
         ";
     }
-    
+
     $withoutTags = CRM_Utils_Array::value('without_tags',
       $this->_formValues
     );
@@ -136,14 +136,14 @@ class CRM_Lonesome_Form_Search_NoGroup extends CRM_Contact_Form_Search_Custom_Ba
     if ($withoutTags) {
       $whereWithoutTags .= "
         AND NOT EXISTS (
-          SELECT 1 
-          FROM civicrm_entity_tag c4 
+          SELECT 1
+          FROM civicrm_entity_tag c4
           WHERE c4.entity_table = 'civicrm_contact' AND c4.entity_id = contact_a.id
         )";
     }
-    
+
     $where = "
-    contact_a.contact_type = 'Individual' 
+    contact_a.contact_type = 'Individual'
     AND contact_a.is_deleted = 0 ".$whereWithoutGroups.$whereWithoutTags;
 
     $params = array();
@@ -157,8 +157,8 @@ class CRM_Lonesome_Form_Search_NoGroup extends CRM_Contact_Form_Search_Custom_Ba
    */
   function templateFile() {
     return 'CRM/Contact/Form/Search/Custom.tpl';
-  } 
-  
+  }
+
   /**
    * Global validation rules for the form.
    *
@@ -171,7 +171,7 @@ class CRM_Lonesome_Form_Search_NoGroup extends CRM_Contact_Form_Search_Custom_Ba
    * @return array
    *   list of errors to be posted back to the form
    */
-  public static function formRule($values, $files, $form) {
+  public function formRule($values, $files, $form) {
     $errors = array();
     if (!array_key_exists('without_groups', $values) &&
         !array_key_exists('without_tags', $values))
@@ -183,8 +183,8 @@ class CRM_Lonesome_Form_Search_NoGroup extends CRM_Contact_Form_Search_Custom_Ba
         $errors['without_tags'] = ts('At least one checkbox have to be checked');
       }
     }
-    
+
     return empty($errors) ? true : $errors;
   }
-  
+
 }
